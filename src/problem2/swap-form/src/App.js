@@ -1,5 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { Container, Paper, Grid, Typography, TextField, MenuItem, Button, Box } from '@mui/material';
+import { Container, Paper, Grid, Typography, TextField, MenuItem, Button } from '@mui/material';
+import IconButton from '@mui/material/IconButton';
+// import SwapVerticalCircleIcon from '@mui/icons-material/SwapVerticalCircle';
+import SwapVertIcon from '@mui/icons-material/SwapVert';
 
 const CurrencySwap = () => {
   const [fromCurrency, setFromCurrency] = useState('');
@@ -11,6 +14,9 @@ const CurrencySwap = () => {
   const [exchangeRates, setExchangeRates] = useState({});
   const [isSwapped, setIsSwapped] = useState(false);
 
+
+  // Fetching data from prices.json
+  // Store  currency into currencies and prices into exchangeRates
   useEffect(() => {
     fetch('data/prices.json')
       .then((response) => response.json())
@@ -59,80 +65,78 @@ const CurrencySwap = () => {
       <Grid container spacing={2}>
         <Grid item xs={12}>
           <Typography variant="h6" gutterBottom>
-            From Currency
+            From
           </Typography>
-          <TextField
-            fullWidth
-            label="From Currency"
-            select
-            variant="outlined"
-            value={isSwapped ? toCurrency : fromCurrency}
-            onChange={(e) => (isSwapped ? setToCurrency(e.target.value) : setFromCurrency(e.target.value))}
-          >
-            {currencies.map((currency) => (
-              <MenuItem key={currency} value={currency}>
-                {currency}
-              </MenuItem>
-            ))}
-          </TextField>
+          <Grid container spacing={2} alignItems="center">
+            <Grid item xs={8}>
+              <TextField
+                fullWidth
+                label="Amount"
+                variant="outlined"
+                type="number"
+                value={amount}
+                onChange={(e) => setAmount(e.target.value)}
+                onBlur={() => {
+                  if (!isSwapped) {
+                    setOriginalAmount(amount);
+                  }
+                }}
+              />
+            </Grid>
+            <Grid item xs={4}>
+              <TextField
+                fullWidth
+                select
+                variant="outlined"
+                value={isSwapped ? toCurrency : fromCurrency}
+                onChange={(e) => (isSwapped ? setToCurrency(e.target.value) : setFromCurrency(e.target.value))}
+              >
+                {currencies.map((currency) => (
+                  <MenuItem key={currency} value={currency}>
+                    {currency}
+                  </MenuItem>
+                ))}
+              </TextField>
+            </Grid>
+          </Grid>
         </Grid>
-        <Grid item xs={12}>
-          <Typography variant="h6" gutterBottom>
-            You pay:
-          </Typography>
-          <TextField
-            fullWidth
-            label="Amount"
-            variant="outlined"
-            type="number"
-            value={amount}
-            onChange={(e) => setAmount(e.target.value)}
-            onBlur={() => {
-              if (!isSwapped) {
-                setOriginalAmount(amount);
-              }
-            }}
-          />
-        </Grid>
-        <Grid item xs={12}>
-          <Button variant="contained" color="primary" onClick={handleSwapCurrencies}>
-            Swap Currencies
+        <Grid item xs={12} align="center">
+          <Button variant="outlined" style={{ color: 'black' }} onClick={handleSwapCurrencies}>
+            {/* <SwapVerticalCircleIcon fontSize="large" /> */}
+            <SwapVertIcon fontSize="large" />
           </Button>
         </Grid>
         <Grid item xs={12}>
           <Typography variant="h6" gutterBottom>
-            To Currency
+            To
           </Typography>
-          <TextField
-            fullWidth
-            label="To Currency"
-            select
-            variant="outlined"
-            value={isSwapped ? fromCurrency : toCurrency}
-            onChange={(e) => (isSwapped ? setFromCurrency(e.target.value) : setToCurrency(e.target.value))}
-          >
-            {currencies.map((currency) => (
-              <MenuItem key={currency} value={currency}>
-                {currency}
-              </MenuItem>
-            ))}
-          </TextField>
-        </Grid>
-        <Grid item xs={12}>
-          <Typography variant="h6" gutterBottom>
-            You receive:
-          </Typography>
-          <Box
-            border={1}
-            borderColor="primary.main"
-            p={2}
-            display="flex"
-            justifyContent="center"
-            alignItems="center"
-            height="48px"
-          >
-            {result}
-          </Box>
+          <Grid container spacing={2} alignItems="center">
+            <Grid item xs={8}>
+              <TextField
+                fullWidth
+                label="Amount"
+                variant="outlined"
+                type="number"
+                value={result}
+                InputProps={{ readOnly: true }}
+              />
+            </Grid>
+            <Grid item xs={4}>
+              <TextField
+                fullWidth
+                select
+                variant="outlined"
+                value={isSwapped ? fromCurrency : toCurrency}
+                onChange={(e) => (isSwapped ? setFromCurrency(e.target.value) : setToCurrency(e.target.value))}
+              >
+                {currencies.map((currency) => (
+                  <MenuItem key={currency} value={currency}>
+                    {currency}
+                  </MenuItem>
+                ))}
+              </TextField>
+            </Grid>
+          </Grid>
         </Grid>
       </Grid>
     </Paper>
