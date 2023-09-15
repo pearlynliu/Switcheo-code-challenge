@@ -114,11 +114,6 @@ const CurrencySwap = () => {
       setIsSwapped(!isSwapped);
       setAmount(originalAmount);
       setResult('');
-      
-      // Use setTimeout to ensure state changes are processed
-      // setTimeout(() => {
-        
-      // });
     }
   };
 
@@ -137,7 +132,7 @@ const CurrencySwap = () => {
         <Grid container spacing={2}>
           <Grid item xs={12}>
             <Typography variant="h6" gutterBottom>
-              From
+             From
             </Typography>
             <Grid container spacing={2} alignItems="center">
               <Grid item xs={8}>
