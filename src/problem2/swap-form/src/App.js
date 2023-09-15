@@ -1,5 +1,68 @@
 import React, { useState, useEffect } from 'react';
-import { Container, Paper, Grid, Typography, TextField, MenuItem, Button, Box } from '@mui/material';
+import { Container, Paper, Grid, Typography, TextField, MenuItem, Button } from '@mui/material';
+import SwapVertIcon from '@mui/icons-material/SwapVert';
+import { createTheme, ThemeProvider } from '@mui/material/styles';
+
+// colors: 
+// green: #e2fca4
+// blue: #1a3b4d
+// white: #ffffff
+
+const theme = createTheme({
+  palette: {
+    text: {
+      primary: "#ffffff",
+    }
+  },
+  components: {
+    MuiTextField: {
+      styleOverrides: {
+        root: ({
+          "& .MuiInputLabel-root": {
+            color: "#e2fca4", // Styles the label color to green
+          },
+          "& .MuiInputLabel-root.Mui-focused": {
+            color: "#ffffff", // Styles the focused label color to white
+          },
+          "& .MuiOutlinedInput-root": {
+            '& fieldset': {
+              borderColor: '#e2fca4', // Change the outline color to green
+              borderRadius: '10px'
+            },
+            "&:hover fieldset": {
+              borderColor: "#ffffff", // Styles the border color on hover to white
+            },
+            "&.Mui-focused fieldset": {
+              borderColor: "#e2fca4", // Styles the focused border color to green
+            },
+            "& .MuiOutlinedInput-root .MuiMenuItem-root": {
+              color: "#1a3b4d", // Set the text color to blue
+            },
+
+          },
+          "& input": {color: "#ffffff"},
+          
+        }),
+      },
+    },
+    MuiMenuItem: {
+      styleOverrides: {
+        root: {
+          color: "#1a3b4d", // Set the text color of MenuItem to blue
+        },
+      },
+    },
+    MuiSelect: {
+      styleOverrides: {
+        icon: {
+          color: "#1a3b4d", // Set the select arrow color to blue
+        },
+      },
+    },
+
+  }
+});
+
 
 const CurrencySwap = () => {
   const [fromCurrency, setFromCurrency] = useState('');
@@ -11,6 +74,9 @@ const CurrencySwap = () => {
   const [exchangeRates, setExchangeRates] = useState({});
   const [isSwapped, setIsSwapped] = useState(false);
 
+
+  // Fetching data from prices.json
+  // Store currency into currencies and prices into exchangeRates
   useEffect(() => {
     fetch('data/prices.json')
       .then((response) => response.json())
@@ -32,7 +98,7 @@ const CurrencySwap = () => {
       const toRate = exchangeRates[toCurrency];
       if (fromRate && toRate) {
         const convertedAmount = (amount / fromRate) * toRate;
-        setResult(convertedAmount.toFixed(2));
+        setResult(convertedAmount);
       } else {
         setResult('Invalid currencies');
       }
@@ -51,97 +117,113 @@ const CurrencySwap = () => {
     }
   };
 
+  useEffect(() => {
+    if (originalAmount) {
+      setResult('');
+    }
+  }, [originalAmount]);
+
   return (
-    <Paper elevation={3} style={{ padding: '20px' }}>
-      <Typography variant="h5" gutterBottom>
-        Currency Swap
-      </Typography>
-      <Grid container spacing={2}>
-        <Grid item xs={12}>
-          <Typography variant="h6" gutterBottom>
-            From Currency
-          </Typography>
-          <TextField
-            fullWidth
-            label="From Currency"
-            select
-            variant="outlined"
-            value={isSwapped ? toCurrency : fromCurrency}
-            onChange={(e) => (isSwapped ? setToCurrency(e.target.value) : setFromCurrency(e.target.value))}
-          >
-            {currencies.map((currency) => (
-              <MenuItem key={currency} value={currency}>
-                {currency}
-              </MenuItem>
-            ))}
-          </TextField>
+    <ThemeProvider theme={theme}>
+      <Paper elevation={3} sx={{ backgroundColor: "#1a3b4d", padding: "20px", borderRadius: "20px" }}>
+        <Typography variant="h4" gutterBottom sx={{ fontWeight: 'bold' }}>
+          Currency Swap
+        </Typography>
+        <Grid container spacing={2}>
+          <Grid item xs={12}>
+            <Typography variant="h6" gutterBottom>
+             From
+            </Typography>
+            <Grid container spacing={2} alignItems="center">
+              <Grid item xs={8}>
+                <TextField
+                  fullWidth
+                  label="Amount"
+                  variant="outlined"
+                  type="number"
+                  value={amount}
+                  onChange={(e) => setAmount(e.target.value)}
+                  onBlur={() => {
+                    if (!isSwapped) {
+                      setOriginalAmount(amount);
+                    }
+                  }}
+                />
+              </Grid>
+              <Grid item xs={4}>
+                <TextField
+                  fullWidth
+                  select
+                  variant="outlined"
+                  label="Currency"
+                  value={isSwapped ? toCurrency : fromCurrency}
+                  onChange={(e) => (isSwapped ? setToCurrency(e.target.value) : setFromCurrency(e.target.value))}
+                >
+                  {currencies.map((currency) => (
+                    <MenuItem key={currency} value={currency}>
+                      {currency}
+                    </MenuItem>
+                  ))}
+                </TextField>
+              </Grid>
+            </Grid>
+          </Grid>
+          <Grid item xs={12} align="center">
+            <Button 
+              style={{ color: '#1a3b4d', backgroundColor: "#e2fca4"}}
+              onClick={handleSwapCurrencies}>
+              <SwapVertIcon fontSize="large" />
+            </Button>
+          </Grid>
+          <Grid item xs={12}>
+            <Typography variant="h6" gutterBottom>
+              To
+            </Typography>
+            <Grid container spacing={2} alignItems="center">
+              <Grid item xs={8}>
+                <TextField
+                  fullWidth
+                  label="Amount"
+                  variant="outlined"
+                  type="number"
+                  value={result}
+                  InputProps={{ readOnly: true }}
+                />
+              </Grid>
+              <Grid item xs={4}>
+                <TextField
+                  fullWidth
+                  select
+                  variant="outlined"
+                  label="Currency"
+                  value={isSwapped ? fromCurrency : toCurrency}
+                  onChange={(e) => (isSwapped ? setFromCurrency(e.target.value) : setToCurrency(e.target.value))}
+                >
+                  {currencies.map((currency) => (
+                    <MenuItem key={currency} value={currency}>
+                      {currency}
+                    </MenuItem>
+                  ))}
+                </TextField>
+              </Grid>
+            </Grid>
+          </Grid>
         </Grid>
-        <Grid item xs={12}>
-          <Typography variant="h6" gutterBottom>
-            You pay:
-          </Typography>
-          <TextField
-            fullWidth
-            label="Amount"
-            variant="outlined"
-            type="number"
-            value={amount}
-            onChange={(e) => setAmount(e.target.value)}
-            onBlur={() => {
-              if (!isSwapped) {
-                setOriginalAmount(amount);
-              }
-            }}
-          />
-        </Grid>
-        <Grid item xs={12}>
-          <Button variant="contained" color="primary" onClick={handleSwapCurrencies}>
-            Swap Currencies
-          </Button>
-        </Grid>
-        <Grid item xs={12}>
-          <Typography variant="h6" gutterBottom>
-            To Currency
-          </Typography>
-          <TextField
-            fullWidth
-            label="To Currency"
-            select
-            variant="outlined"
-            value={isSwapped ? fromCurrency : toCurrency}
-            onChange={(e) => (isSwapped ? setFromCurrency(e.target.value) : setToCurrency(e.target.value))}
-          >
-            {currencies.map((currency) => (
-              <MenuItem key={currency} value={currency}>
-                {currency}
-              </MenuItem>
-            ))}
-          </TextField>
-        </Grid>
-        <Grid item xs={12}>
-          <Typography variant="h6" gutterBottom>
-            You receive:
-          </Typography>
-          <Box
-            border={1}
-            borderColor="primary.main"
-            p={2}
-            display="flex"
-            justifyContent="center"
-            alignItems="center"
-            height="48px"
-          >
-            {result}
-          </Box>
-        </Grid>
-      </Grid>
-    </Paper>
+
+        {/* Conversion rate section */}
+        {fromCurrency && toCurrency && (
+            <Typography variant="body1" gutterBottom sx={{ marginTop: 4, fontWeight: 'bold' }}>
+              1 {fromCurrency} = {exchangeRates[fromCurrency] / exchangeRates[toCurrency]} {toCurrency}
+            </Typography>
+          )}
+      </Paper>
+    </ThemeProvider>
   );
 };
 
 const CurrencySwapPage = () => {
   return (
-    <Container maxWidth="md" style={{ paddingTop: '20px' }}>
+    <Container maxWidth="md" style={{ paddingTop: '3rem', paddingBottom: '3rem' }}>
       <CurrencySwap />
     </Container>
   );
