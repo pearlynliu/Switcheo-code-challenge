@@ -1,20 +1,42 @@
-1. The interfaces `WalletBalance` and `FormattedWalletBalance` have common properties. It might be better to have `FormattedWalletBalance` extend from `WalletBalance`, such that `FormattedWalletBalance` will only have the additional property of `formatted: string`. This is to ensure type coherence since `FormattedWalletBalance` is likely a formatted version of `WalletBalance`, hence it helps to organize the code logically.
+1. The interfaces `WalletBalance` and `FormattedWalletBalance` have common properties. 
+It might be better to have `FormattedWalletBalance` extend from `WalletBalance`, such that `FormattedWalletBalance` will only have the additional property of `formatted: string`.
+This is to ensure type coherence since `FormattedWalletBalance` is likely a formatted version of `WalletBalance`, hence it helps to organize the code logically.
 
-Should there be a need to update the `WalletBalance` interface in the future by adding or modifying properties, `FormattedWalletBalance` will automatically reflect those changes since it extends `WalletBalance`. This makes it easier to maintain the codebase as it evolves.
+Should there be a need to update the `WalletBalance` interface in the future by adding or modifying properties, 
+`FormattedWalletBalance` will automatically reflect those changes since it extends `WalletBalance`.
+This makes it easier to maintain the codebase as it evolves.
 
-2. If there are no additional properties that are needed to go along with `BoxProps`, then there is no need initialise the interface `Props` to extend from `BoxProps`. Currently, there are no properties under `Props`, meaning that the `Props` interface could be removed, and the properties of `BoxProps` can be used directly. This can help to simplify the code and avoid redundancy.
+2. If there are no additional properties that are needed to go along with `BoxProps`,
+then there is no need initialise the interface `Props` to extend from `BoxProps`. 
+Currently, there are no properties under `Props`, meaning that the `Props` interface could be removed, 
+and the properties of `BoxProps` can be used directly. This can help to simplify the code and avoid redundancy.
 
-3. The component receives `children` as a `prop` but doesn't appear to use it. If it is not used, it's better to omit them from the component's `props` to reduce clutter.
+3. The component receives `children` as a `prop` but doesn't appear to use it. 
+If it is not used, it's better to omit them from the component's `props` to reduce clutter.
 
-4. As the `getPriority` function takes in `blockchain` as an argument, it might be best to have a `blockchain` property under the `WalletBalance` interface to ensure that `balance.blockchain`, `lhs.blockchain` and `rhs.blockchain` will be able to return a value under the `sortedBalances` function.
+4. As the `getPriority` function takes in `blockchain` as an argument, 
+it might be best to have a `blockchain` property under the `WalletBalance` interface to ensure that `balance.blockchain`, 
+`lhs.blockchain` and `rhs.blockchain` will be able to return a value under the `sortedBalances` function.
 
-5. Under the `sortedBalances` function, an undefined variable `lhsPriority` is used. The variable that should be used is `balancePriority` which is defined in the line above the `if` statement. 
+5. Under the `sortedBalances` function, an undefined variable `lhsPriority` is used. 
+The variable that should be used is `balancePriority` which is defined in the line above the `if` statement. 
 
-6. A rather trivial change to the code under `sortedBalances` is to combine the two `if` statements using `&&`. This can help make the code cleaner. --> if (balancePriority > -99 && balance.amount <= 0) { ... }
+6. A rather trivial change to the code under `sortedBalances` is to combine the two `if` statements using `&&`. 
+This can help make the code cleaner. --> if (balancePriority > -99 && balance.amount <= 0) { ... }
 
-7. While using `useMemo` is a good practice for memoization, it can be overused. In this case, the entire `sortedBalances` array is recalculated every time `balances` or `prices` change, which may not be necessary. Since the array is sorted based on their `blockchain` priority, that can be retrieved by using the function `getPriority`, the array should only recalculated when this priority value is changed. Since the `filter` function also depends on `balance.amount`, this could be another factor taken into consideration for the recalculation of the `sortedBalances` array.
+7. While using `useMemo` is a good practice for memoization, it can be overused. 
+In this case, the entire `sortedBalances` array is recalculated every time `balances` or `prices` change, which may not be necessary. 
+Since the array is sorted based on their `blockchain` priority, that can be retrieved by using the function `getPriority`, 
+the array should only recalculated when this priority value is changed. 
+Since the `filter` function also depends on `balance.amount`, this could be another factor taken into consideration 
+for the recalculation of the `sortedBalances` array.
 
-8. The sorting function sort is not efficient because it calls the `getPriority` function multiple times for the same items, which can be avoided. Instead, a function could be created to assign a `priority` value to each `balance`. The sorting function will then sort the `balances` based on the `priority` property.
+8. To improve on the point in option 7, it might also be better to separate the filter and sorting into 2 different functions.
+This way, if there might be any issues in the output, it will be easier for debugging.
+
+9. The sorting function sort is not efficient because it calls the `getPriority` function multiple times for the same items, 
+which can be avoided. Instead, a function could be created to assign a `priority` value to each `balance`. 
+The sorting function will then sort the `balances` based on the `priority` property.
 
 
 The suggested refactored code can be viewed under the `refactored.tsx` file.
