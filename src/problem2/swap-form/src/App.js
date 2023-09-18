@@ -107,21 +107,19 @@ const CurrencySwap = () => {
     }
   }, [fromCurrency, toCurrency, amount, exchangeRates]);
 
-  const handleSwapCurrencies = () => {
-    if (originalAmount) {
-      setFromCurrency(isSwapped ? toCurrency : fromCurrency);
-      setToCurrency(isSwapped ? fromCurrency : toCurrency);
-      setIsSwapped(!isSwapped);
-      setAmount(originalAmount);
-      setResult('');
-    }
-  };
-
   useEffect(() => {
     if (originalAmount) {
-      setResult('');
+      if (amount !== originalAmount) {
+        setFromCurrency(isSwapped ? toCurrency : fromCurrency);
+        setToCurrency(isSwapped ? fromCurrency : toCurrency);
+        setIsSwapped(!isSwapped);
+        setOriginalAmount(amount);
+        setResult('');
+      }
+    } else {
+      setOriginalAmount(amount);
     }
-  }, [originalAmount]);
+  }, [amount, isSwapped, originalAmount, fromCurrency, toCurrency]);
 
   return (
     <ThemeProvider theme={theme}>
@@ -129,6 +127,7 @@ const CurrencySwap = () => {
         <Typography variant="h4" gutterBottom sx={{ fontWeight: 'bold' }}>
           Currency Swap
         </Typography>
+        <form id="currencySwapForm" onSubmit={(e) => e.preventDefault()}>
         <Grid container spacing={2}>
           <Grid item xs={12}>
             <Typography variant="h6" gutterBottom>
@@ -169,9 +168,14 @@ const CurrencySwap = () => {
             </Grid>
           </Grid>
           <Grid item xs={12} align="center">
-            <Button 
-              style={{ color: '#1a3b4d', backgroundColor: "#e2fca4"}}
-              onClick={handleSwapCurrencies}>
+            <Button
+              style={{ color: '#1a3b4d', backgroundColor: "#e2fca4" }}
+              onClick={() => {
+                setFromCurrency(toCurrency);
+                setToCurrency(fromCurrency);
+                setIsSwapped(!isSwapped);
+              }}
+            >
               <SwapVertIcon fontSize="large" />
             </Button>
           </Grid>
@@ -209,6 +213,7 @@ const CurrencySwap = () => {
             </Grid>
           </Grid>
         </Grid>
+        </form>
 
         {/* Conversion rate section */}
         {fromCurrency && toCurrency && (
