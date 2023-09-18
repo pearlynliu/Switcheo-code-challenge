@@ -107,21 +107,19 @@ const CurrencySwap = () => {
     }
   }, [fromCurrency, toCurrency, amount, exchangeRates]);
 
-  const handleSwapCurrencies = () => {
-    if (originalAmount) {
-      setFromCurrency(isSwapped ? toCurrency : fromCurrency);
-      setToCurrency(isSwapped ? fromCurrency : toCurrency);
-      setIsSwapped(!isSwapped);
-      setAmount(originalAmount);
-      setResult('');
-    }
-  };
-
   useEffect(() => {
     if (originalAmount) {
-      setResult('');
+      if (amount !== originalAmount) {
+        setFromCurrency(isSwapped ? toCurrency : fromCurrency);
+        setToCurrency(isSwapped ? fromCurrency : toCurrency);
+        setIsSwapped(!isSwapped);
+        setOriginalAmount(amount);
+        setResult('');
+      }
+    } else {
+      setOriginalAmount(amount);
     }
-  }, [originalAmount]);
+  }, [amount, isSwapped, originalAmount, fromCurrency, toCurrency]);
 
   return (
     <ThemeProvider theme={theme}>
@@ -129,93 +127,95 @@ const CurrencySwap = () => {
         <Typography variant="h4" gutterBottom sx={{ fontWeight: 'bold' }}>
           Currency Swap
         </Typography>
-        <Grid container spacing={2}>
-          <Grid item xs={12}>
-            <Typography variant="h6" gutterBottom>
-             From
-            </Typography>
-            <Grid container spacing={2} alignItems="center">
-              <Grid item xs={8}>
-                <TextField
-                  fullWidth
-                  label="Amount"
-                  variant="outlined"
-                  type="number"
-                  value={amount}
-                  onChange={(e) => setAmount(e.target.value)}
-                  onBlur={() => {
-                    if (!isSwapped) {
-                      setOriginalAmount(amount);
-                    }
-                  }}
-                />
+        <form>
+          <Grid container spacing={2}>
+            <Grid item xs={12}>
+              <Typography variant="h6" gutterBottom>
+                From
+              </Typography>
+              <Grid container spacing={2} alignItems="center">
+                <Grid item xs={8}>
+                  <TextField
+                    fullWidth
+                    label="Amount"
+                    variant="outlined"
+                    type="number"
+                    value={amount}
+                    onChange={(e) => setAmount(e.target.value)}
+                  />
+                </Grid>
+                <Grid item xs={4}>
+                  <TextField
+                    fullWidth
+                    select
+                    variant="outlined"
+                    label="Currency"
+                    value={fromCurrency}
+                    onChange={(e) => setFromCurrency(e.target.value)}
+                  >
+                    {currencies.map((currency) => (
+                      <MenuItem key={currency} value={currency}>
+                        {currency}
+                      </MenuItem>
+                    ))}
+                  </TextField>
+                </Grid>
               </Grid>
-              <Grid item xs={4}>
-                <TextField
-                  fullWidth
-                  select
-                  variant="outlined"
-                  label="Currency"
-                  value={isSwapped ? toCurrency : fromCurrency}
-                  onChange={(e) => (isSwapped ? setToCurrency(e.target.value) : setFromCurrency(e.target.value))}
-                >
-                  {currencies.map((currency) => (
-                    <MenuItem key={currency} value={currency}>
-                      {currency}
-                    </MenuItem>
-                  ))}
-                </TextField>
+            </Grid>
+            <Grid item xs={12} align="center">
+              <Button
+                style={{ color: '#1a3b4d', backgroundColor: "#e2fca4" }}
+                onClick={() => {
+                  setFromCurrency(toCurrency);
+                  setToCurrency(fromCurrency);
+                  setIsSwapped(!isSwapped);
+                }}
+              >
+                <SwapVertIcon fontSize="large" />
+              </Button>
+            </Grid>
+            <Grid item xs={12}>
+              <Typography variant="h6" gutterBottom>
+                To
+              </Typography>
+              <Grid container spacing={2} alignItems="center">
+                <Grid item xs={8}>
+                  <TextField
+                    fullWidth
+                    label="Amount"
+                    variant="outlined"
+                    type="number"
+                    value={result}
+                    InputProps={{ readOnly: true }}
+                  />
+                </Grid>
+                <Grid item xs={4}>
+                  <TextField
+                    fullWidth
+                    select
+                    variant="outlined"
+                    label="Currency"
+                    value={toCurrency}
+                    onChange={(e) => setToCurrency(e.target.value)}
+                  >
+                    {currencies.map((currency) => (
+                      <MenuItem key={currency} value={currency}>
+                        {currency}
+                      </MenuItem>
+                    ))}
+                  </TextField>
+                </Grid>
               </Grid>
             </Grid>
           </Grid>
-          <Grid item xs={12} align="center">
-            <Button 
-              style={{ color: '#1a3b4d', backgroundColor: "#e2fca4"}}
-              onClick={handleSwapCurrencies}>
-              <SwapVertIcon fontSize="large" />
-            </Button>
-          </Grid>
-          <Grid item xs={12}>
-            <Typography variant="h6" gutterBottom>
-              To
-            </Typography>
-            <Grid container spacing={2} alignItems="center">
-              <Grid item xs={8}>
-                <TextField
-                  fullWidth
-                  label="Amount"
-                  variant="outlined"
-                  type="number"
-                  value={result}
-                  InputProps={{ readOnly: true }}
-                />
-              </Grid>
-              <Grid item xs={4}>
-                <TextField
-                  fullWidth
-                  select
-                  variant="outlined"
-                  label="Currency"
-                  value={isSwapped ? fromCurrency : toCurrency}
-                  onChange={(e) => (isSwapped ? setFromCurrency(e.target.value) : setToCurrency(e.target.value))}
-                >
-                  {currencies.map((currency) => (
-                    <MenuItem key={currency} value={currency}>
-                      {currency}
-                    </MenuItem>
-                  ))}
-                </TextField>
-              </Grid>
-            </Grid>
-          </Grid>
-        </Grid>
+        </form>
 
         {/* Conversion rate section */}
         {fromCurrency && toCurrency && (
-            <Typography variant="body1" gutterBottom sx={{ marginTop: 4, fontWeight: 'bold' }}>
-              1 {fromCurrency} = {exchangeRates[fromCurrency] / exchangeRates[toCurrency]} {toCurrency}
-            </Typography>
-          )}
+          <Typography variant="body1" gutterBottom sx={{ marginTop: 4, fontWeight: 'bold' }}>
+            1 {fromCurrency} = {exchangeRates[fromCurrency] / exchangeRates[toCurrency]} {toCurrency}
+          </Typography>
+        )}
       </Paper>
     </ThemeProvider>
   );
